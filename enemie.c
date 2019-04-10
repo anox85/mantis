@@ -9,30 +9,6 @@
 #include <SDL/SDL_ttf.h> 
 #include "enemie.h" 
 
-
-void affichage_initialisation (SDL_Surface *background,SDL_Surface *screen)
-{
-SDL_Surface *ciseaux ; 
-ciseaux=IMG_Load("ciseaux.png");
-SDL_Surface *papier ; 
-papier=IMG_Load("papier.png");
-
-SDL_Rect ciseauxPosition; 
-ciseauxPosition.y=0;
-
-SDL_Rect papierPosition; 
-papierPosition.x=0;
-
-SDL_BlitSurface(ciseaux,NULL,background,&ciseauxPosition);
-SDL_FreeSurface(ciseaux);
-SDL_Flip(screen);
-
-SDL_BlitSurface(papier,NULL,background,&papierPosition);
-SDL_FreeSurface(papier);
-SDL_Flip(screen);
-}
-
-
 void deplacement_enemie_verticale (SDL_Rect ciseauxPosition) 
 {
 int direction=0;

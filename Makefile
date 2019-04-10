@@ -1,6 +1,6 @@
-prog:fonction.o main.o
-	gcc fonction.o main.o -o prog -g -lSDL -lSDL_image -lSDL_mixer -lSDL_ttf
+prog:main.o enemie.o
+	gcc main.o enemie.o -o prog -g -lSDL -lSDL_image -lSDL_mixer
 main.o:main.c
-	gcc -c main.c -o -lSDL -lSDL_image -lSDL_mixer -lSDL_ttf
-fonction.o:fonction.c
-	gcc -c fonction.c –o -lSDL -lSDL_image -lSDL_mixer -lSDL_ttf
+	gcc -c main.c -g -lSDL -lSDL_image -lSDL_mixer
+enemie.o:enemie.c
+	gcc -c enemie.c –g -lSDL -lSDL_image -lSDL_mixer

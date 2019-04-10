@@ -1,6 +1,5 @@
 #ifndef ENEMIE_H_
 #define ENEMIE_H_
-void affichage_initialisation (SDL_Surface *background,SDL_Surface *screen);
 
 void deplacement_enemie_verticale (SDL_Rect ciseauxPosition);
 

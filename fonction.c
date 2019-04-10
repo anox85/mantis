@@ -1,227 +1,82 @@
 #include <stdio.h>
-#include <SDL/SDL.h>
 #include <stdlib.h>
+#include <string.h>
+#include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_mixer.h"
+#include <SDL/SDL_ttf.h>
 #include "header.h"
 
 
-
-
-//fonction pause
-void pause()
+char *readStringSDL()//saisie avec clavier
 {
-    int continuer = 1;
+
+	char *s_dst;
     SDL_Event event;
  
-    while (continuer)
+    size_t pos = 0;
+    int unicode;
+ 
+    SDL_EnableUNICODE(1);
+ 
+    while (SDL_PollEvent(&event))
     {
-        SDL_WaitEvent(&event);
-        switch(event.type)
+        switch (event.type)
         {
-            case SDL_QUIT:
-                continuer = 0;
+        case SDL_KEYDOWN:
+            switch (event.key.keysym.sym)
+            {
+            case SDLK_RETURN:
+                s_dst[pos] = '\n';
+            break;
+            default:
+                unicode = event.key.keysym.unicode;
+                if (unicode == 8 && pos > 0)
+                {
+                    s_dst[pos] = '\0';
+                    pos--;
+                }
+                else
+                    if (unicode >= 32 && unicode <= 127 && pos < 20)
+                    {
+                        s_dst[pos] = (char)unicode;
+                        pos++;
+                    }
+             break;
+             }
+         break;
         }
     }
+ 
+    SDL_EnableUNICODE(0);
+ 
+    return s_dst;
 }
 
-//fonction menu
-
-void menu(SDL_Surface *screen)
-{
-int bouclemenu=1,x,y;
-Mix_Chunk *effect=NULL;
-SDL_Surface *menu=NULL,*cur=NULL,*play=NULL,*setting=NULL,*out=NULL;
-SDL_Rect positionmenu;
-SDL_Rect positioncur;
-SDL_Rect playpos;
-SDL_Rect settingpos;
-SDL_Rect outpos;
-
-SDL_Event event;
-//chargement image menu
-positionmenu.x=0;
-positionmenu.y=0;
-menu= IMG_Load("menu.png");
-SDL_BlitSurface(menu,NULL,screen, &positionmenu);
-
-//chargement image play
-playpos.x=250;
-playpos.y=100;
-play=IMG_Load("playtrans.png");
-SDL_BlitSurface(play,NULL,screen,&playpos);
-
-//chargement image settings
-settingpos.x=250;
-settingpos.y=190;
-setting=IMG_Load("settingstrans.png");
-SDL_BlitSurface(setting,NULL,screen,&settingpos);
-
-//chargement image quit
-outpos.x=250;
-outpos.y=280;
-out=IMG_Load("quittrans.png");
-SDL_BlitSurface(out,NULL,screen,&outpos);
-
-cur=IMG_Load("cur3.png");
-SDL_BlitSurface(cur,NULL,screen,&positioncur);
-while (bouclemenu)
-{
-    SDL_PollEvent(&event); /* Récupération de l'événement dans event */
-    switch(event.type) /* Test du type d'événement */
-    {
-          
-        case SDL_QUIT: /* Si c'est un événement de type "Quitter" */
-		{
-		bouclemenu= 0;
-		SDL_Quit();
-		}
-        break;
 
 
-	case SDL_MOUSEMOTION:
-		x=event.motion.x;
-		y=event.motion.y;
-		positioncur.x=x;
-		positioncur.y=y;
+char* choose_random_word() {
 
-		//condition image play
-		if(( x > playpos.x ) && ( x < playpos.x + playpos.w ) && ( y > playpos.y ) && ( y < playpos.y + playpos.h ))
-			play=IMG_Load("play.png");
-		else
-			play=IMG_Load("playtrans.png");
-		//condition image settings
-		if(( x > settingpos.x ) && ( x < settingpos.x + settingpos.w ) &&( y > settingpos.y )&&( y < settingpos.y +settingpos.h))
-			setting=IMG_Load("settings.png");
-		else
-			setting=IMG_Load("settingstrans.png");
-		//condition image quit
-		if(( x > outpos.x ) && ( x < outpos.x + outpos.w ) && ( y > outpos.y ) && ( y < outpos.y + outpos.h ))
-			out=IMG_Load("quit.png");
-		else
-			out=IMG_Load("qiuttrans.png");
+    char nomfich[20]="fich";
+    size_t lineno = 0;
+    size_t selectlen;
+    char selected[256]; /* Arbitrary, make it whatever size makes sense */
+    char current[256];
+    selected[0] = '\0'; /* Don't crash if file is empty */
 
-		break;
-		case SDL_MOUSEBUTTONUP:
-		if(( x > playpos.x ) && ( x < playpos.x + playpos.w ) && ( y > playpos.y ) && ( y < playpos.y + playpos.h ))
-		jeu(screen);
-
-		if(( x > outpos.x ) && ( x < outpos.x + outpos.w ) && ( y > outpos.y ) && ( y < outpos.y + outpos.h ))
-		{
-		Mix_PlayChannel( -1, effect,0);
-		 bouclemenu=0;
-		SDL_Quit();}
-
-	break;
-   }
-SDL_FillRect(screen,NULL,SDL_MapRGB(screen->format,255,255,255));
-SDL_BlitSurface(menu,NULL,screen, &positionmenu);
-SDL_BlitSurface(play,NULL,screen,&playpos);
-SDL_BlitSurface(setting,NULL,screen,&settingpos);
-SDL_BlitSurface(out,NULL,screen,&outpos);
-SDL_BlitSurface(cur,NULL,screen,&positioncur);
-
-SDL_Flip(screen);
-}
-pause();
-
-SDL_FreeSurface(cur);
-SDL_FreeSurface(menu);
-SDL_FreeSurface(play);
-SDL_FreeSurface(setting);
-SDL_FreeSurface(out);
-
-
-
-}
-
-void jeu(SDL_Surface *screen)
-{
-SDL_Surface *fond=NULL,*image=NULL;
-SDL_Rect positionfond;
-SDL_Rect positionimage;
-
-SDL_Event event;
-
-positionfond.x=0;
-positionfond.y=0;
-
-
-fond= SDL_LoadBMP("background.bmp");
-
-SDL_BlitSurface(fond,NULL,screen, &positionfond);
-
-
-positionimage.x=200;
-positionimage.y=200;
-positionimage.w=100;
-
-image=IMG_Load("detective.png");
-SDL_SetColorKey(image, SDL_SRCCOLORKEY, SDL_MapRGB(image->format, 255, 255, 255));
-SDL_BlitSurface(image,NULL,screen,&positionimage);
-
-SDL_Flip(screen);
-
-
-
-int done=1;
-SDL_EnableKeyRepeat(10,10);
-SDL_Event eventperso;
-while (done)
-{
-    SDL_WaitEvent(&eventperso); /* Récupération de l'événement dans event */
-SDL_Rect rect;
-switch(eventperso.type) /* Test du type d'événement */
-    {
-        case SDL_QUIT: /* Si c'est un événement de type "Quitter" */
-           {
-		done = 0;
-		SDL_Quit();
-           }
-        break;
-	case SDL_KEYDOWN:
-		    switch (eventperso.key.keysym.sym)
-		    {
-		        case SDLK_LEFT:
-                    	positionimage.x-=10;
-                    	//if(positionimage.x <= rect.y) {
-                        	//positionimage.x= positionimage.x + 10;
-                    //}
-                    break;
-                	case SDLK_RIGHT:
-		            positionimage.x+=10;
-		            //if(positionimage.x >= (rect.w-70)) {
-		                //positionimage.x= positionimage.x - 10;
-                    //}
-                    break;
-		        case SDLK_UP:
-		            positionimage.y-=10;
-		            //if(positionimage.y <= rect.x) {
-		                //positionimage.y= positionimage.y + 10;
-                    //}
-                    break;
-		        case SDLK_DOWN:
-		            positionimage.y+=10;
-		            //if(positionimage.y >= (rect.h - 170)) {
-		                //positionimage.y= positionimage.y - 10;
-                    //}
-                    break;
-			case SDLK_ESCAPE:
-				menu(screen);
-			break;
-		    }
-       break;
-	
+    nomfich = fopen(nomfich, "r"); /* Add your own error checking */
+    while (fgets(current, sizeof(current), nomfich)) {
+        if (drand48() < 1.0 / ++lineno) {
+            strcpy(selected, current);
+        }
     }
+    fclose(nomfich);
+    selectlen = strlen(selected);
+    if (selectlen > 0 && selected[selectlen-1] == '\n') {
+        selected[selectlen-1] = '\0';
+    }
+    return strdup(selected);
+}
 
 
-SDL_FillRect(screen,NULL,SDL_MapRGB(screen->format,255,255,255));
-SDL_BlitSurface(fond,NULL,screen, &positionfond);
-SDL_SetColorKey(image, SDL_SRCCOLORKEY, SDL_MapRGB(image->format, 255, 255, 255));
-SDL_BlitSurface(image,NULL,screen,&positionimage);
-SDL_Flip(screen);
-}
-SDL_FreeSurface(image);
-SDL_FreeSurface(fond);
-}
 

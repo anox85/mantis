@@ -1,70 +1,79 @@
-#include<stdio.h>
-#include"SDL/SDL.h"
-#include"SDL/SDL_image.h"
-#include"SDL/SDL_mixer.h"
-#include"enemie.h"
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <SDL/SDL.h>
-#include <SDL/SDL_ttf.h> 
-#include "enemie.h" 
+#include <SDL/SDL_image.h>
+#include "partage_d'ecran.h"
 
-int main( int argc, char *argv[ ] )
+
+int main(int argc, char *argv[])
 {
+    SDL_Surface *screen=NULL,*trait=NULL;
+    joueur j1,j2;
+    background b1,b2;
 
-SDL_Surface *screen=NULL;
-SDL_Surface *background=NULL;
-SDL_Surface *ciseaux=NULL;
-SDL_Surface *ciseaux2=NULL;
-SDL_Surface *papier=NULL;
-SDL_Surface *papier2=NULL;
-SDL_Init(SDL_INIT_VIDEO);
+    SDL_Rect camera1, camera2, p_trait;
 
-screen=SDL_SetVideoMode(1400, 475, 32, SDL_HWSURFACE);
-SDL_WM_SetCaption("animation-char", NULL);  
-background=SDL_LoadBMP("background.bmp");
-ciseaux2 = IMG_Load("ciseaux2.png");
-papier2 = IMG_Load("papier2.png");
-SDL_Rect positionback,positiondet;
+    camera1.x=0;
+    camera1.y=200;
+    camera1.w=largeur/2;
+    camera1.h=hauteur;
 
-//initialisation&affichage
+    camera2.x=0;
+    camera2.y=200;
+    camera2.w=largeur/2;
+    camera2.h=hauteur;
 
-ciseaux=IMG_Load("ciseaux.png");
-papier=IMG_Load("papier.png");
+    p_trait.x=largeur/2;
+    p_trait.y=0;
 
-SDL_Rect ciseauxPosition ; 
-ciseauxPosition.y=0;
+    SDL_Init(SDL_INIT_VIDEO);
 
-SDL_Rect papierPosition; 
-papierPosition.x=0;
+    screen=SDL_SetVideoMode(largeur,hauteur,32,SDL_HWSURFACE|SDL_DOUBLEBUF);
+    initialiser_background1(&b1);
+    initialiser_background2(&b2);
+    initialiser_momo(&j1);
+    initialiser_sousana(&j2);
+    /*initialiser_deuxieme_perso(&j3);*/
+    trait = IMG_Load("trait.png");
 
-SDL_BlitSurface(ciseaux,NULL,background,&ciseauxPosition);
-SDL_FreeSurface(ciseaux);
-SDL_Flip(screen);
 
-SDL_BlitSurface(papier,NULL,background,&papierPosition);
-SDL_FreeSurface(papier);
-SDL_Flip(screen);
 
-// fin initialisation&affichage
+    SDL_BlitSurface(b1.background,&camera1,screen,&b1.pb);
+    SDL_BlitSurface(b2.background,&camera2,screen,&b2.pb);
+    SDL_BlitSurface(j1.p[0],NULL,screen,&j1.pp);
+    SDL_BlitSurface(j2.p[1],NULL,screen,&j2.pp);
+    SDL_BlitSurface(trait,NULL,screen,&p_trait);
+    SDL_Flip(screen);
 
-int t=80;
-int x,y;
-int k=0;
+    int continuer = 1;
+    SDL_Event event;
 
-positionback.x=0;
-positionback.y=0;
-SDL_BlitSurface(background,NULL,screen,&positionback);
-SDL_Flip(screen);
-SDL_Delay(2000);
- 
-ciseauxPosition.y=y;
+    while(continuer)
+    {
+    SDL_BlitSurface(b1.background,&camera1,screen,&b1.pb);
+    SDL_BlitSurface(b2.background,&camera2,screen,&b2.pb);
+    SDL_BlitSurface(j1.p[0],NULL,screen,&j1.pp);
+    SDL_BlitSurface(j2.p[1],NULL,screen,&j2.pp);
+    /*SDL_BlitSurface(j3.p[0],NULL,screen,&j3.pp);*/
+    SDL_BlitSurface(trait,NULL,screen,&p_trait);
+    SDL_Flip(screen);
 
-papierPosition.x=x;
+        SDL_WaitEvent(&event);
+        switch(event.type)
+        {
+    case SDL_QUIT:
+        continuer=0;
+        break;
+        case SDL_KEYDOWN :
+            switch(event.key.keysym.sym)
+            {
+                case SDLK_ESCAPE :
+                continuer = 0;
+                break;
+            }
+            break;
+        }
 
-deplacement_enemie_verticale (ciseauxPosition);
-deplacement_papier_horizentale (papierPosition);
-animation(&screen ,&ciseaux,&ciseaux2,&papier,&papier2,positiondet); 
- 
+    }
 
 }
